@@ -1,0 +1,122 @@
+<html>
+  <head>
+    <script type="text/javascript" src="support/jquery.js"></script>
+    <script type="text/javascript" src="support/qunit.js"></script>
+    <script type="text/javascript" src="jstub.js"></script>
+    <link href="support/qunit.css" media="screen" rel="stylesheet" type="text/css" />    
+  </head>
+  <body>
+  
+<h1 id="qunit-header">Qext Tests</h1>
+<h2 id="qunit-banner"></h2>
+<h2 id="qunit-userAgent"></h2>
+<ol id="qunit-tests"></ol>
+ 
+<script type="text/javascript">
+$(document).ready(function()
+{
+ 
+  //we mess with the ok function reference and need to make sure it gets reset properly
+  var originalOk = ok; 
+  QUnit.testStart = function (name) 
+  {  
+		$.resetStubs();
+		originalOk = ok;
+  };
+  
+  QUnit.testDone = function (name) 
+  {
+    ok = originalOk;
+  };
+  
+  test("it stubs simple methods", function()
+  {
+    $.stub(testObject, 'simplest', [], true);
+    ok(testObject.simplest() === true, "stubbed a simple method without parameter");
+    
+    $.stub(testObject, 'simpler', ['goku', 9001], true);
+    ok(testObject.simpler('goku', 9001) === true, "stubbed a simple method with parameters");
+  
+    $.stub(testObject, 'simpler', ['vegeta', 2002], true);
+    ok(testObject.simpler('vegeta', 2002) === true, "stubbed a second simple method with parameters");
+    ok(testObject.simpler('vegeta', 2002) === true, "stubbed a second simple method with parameters repeatedly");
+          
+    $.stub(window, 'globalSimplest', [], true);
+    ok(globalSimplest() === true, "stubbed a simple global method without parameter");
+    
+    $.stub(window, 'globalSimpler', ['super sayan 3', 5], true);
+    ok(globalSimpler('super sayan 3', 5) === true, "stubbed a simple global method with parameters")
+  });
+  
+  //not sure I like this feature
+  test("the window is the default object", function()
+  {
+    $.stub(null, 'globalSimplest', [], true);
+    ok(globalSimplest() === true, "auto stubbed a simple global method without parameter");
+    
+    $.stub(null, 'globalSimpler', ['super sayan 4', 2], true);
+    ok(globalSimpler('super sayan 4', 2) === true, "auto stubbed a simple global method with parameters");
+  });
+  
+  test("unmatched call should fail", function()
+  {
+    $.stub(window, 'ok', [false, 'unexpected call to simplest()']);
+    $.stub(testObject, 'simplest', ["its over what?"], 'successfully failed');
+    testObject.simplest();
+    //no need to assert, if we don't see an error, it means that our stubbed ok worked
+  
+    $.stub(window, 'ok', [false, 'unexpected call to simplest(8000)']);
+    testObject.simplest(8000);
+    
+    $.stub(window, 'ok', [false, 'unexpected call to simplest("its over", 9000)']);
+    testObject.simplest("its over", 9000);
+  });
+  
+  test("unmatched call should fail with exception when ok function isn't available", function()
+  {
+    ok = null;
+    $.stub(testObject, 'simplest', ["its over what?!"], 'successfully failed');
+    
+    assertException(function(){testObject.simplest();}, "unexpected call to simplest()", "unexpected parameterless call");
+    assertException(function(){testObject.simplest(8000);}, "unexpected call to simplest(8000)", "unexpected parameter call");
+    assertException(function(){testObject.simplest("its over", 9000);}, "unexpected call to simplest(\"its over\", 9000)", "unexpected multi-parameter call");
+  });
+
+  function assertException(cause, message, assertionMessage)
+  {
+    try 
+    { 
+      cause();
+      originalOK(false, "didn't get an exception for an " + assertionMessage); 
+    }
+    catch(err) 
+    { 
+      equals(err, message, "threw exception for an " + assertionMessage);
+    }
+  }
+
+  test("resets all stubs to their original implementation", function()
+  {
+    $.stub(testObject, 'simplest', [], true);
+    $.stub(window, 'globalSimpler', [9000, 3], true);
+    $.stub(window, 'globalSimpler', [2000, 1], true);
+    
+    $.resetStubs();
+    
+    ok(testObject.simplest() == false, "reset a single parameterless stub");
+    ok(globalSimpler() == false, "reset a global parametered stub");
+    ok(globalSimpler() == false, "reset a second global parametered stub");
+  })
+
+  
+  var testObject = 
+  {
+    simplest: function() { return false; },
+    simpler: function(name, powerLevel) { return false; }
+  }
+});
+function globalSimplest()  { return false; }
+function globalSimpler(level, ballCount)  { return false; }
+</script>    
+  </body>
+</html>
