@@ -1,0 +1,64 @@
+h1. jstub
+
+jstub is a lightweight javascript stubbing framework. jstub has no dependencies, although it will leverage
+"qunit":http://github.com/jquery/qunit if available. The @jstub_tests.html@ file, which uses jquery and qunit to run, is the best place to look for real world usage example.
+
+h2. usage
+
+You stub a method call via the @$.stub@ function. In its simplest form, @$.stub@ is called with 4 parameters.
+The first is the object in which the function is define (global function live in @code@window@code@), the string name of the method, an array of expected parameters, and a return value. For example, say we wanted to test the following function:
+
+
+<pre>//the internal implementation doesn't matter since we are mocking the getNewNotifications method
+function getNewNotifications(level)
+{
+  var count = TODO;//hit the server and return the number of new notifications
+  return count;
+}</pre>
+
+We would call:
+
+<pre>$.stub(window, 'getNewNotifications', [1], 10);</pre>
+
+Any subsequent calls to @getNewNotifications(1);@ would return 10.
+
+h3. Non 'window' methods
+
+Stubbing a method that does not exist globally is equally as easy. Given:
+
+<pre>
+$.blockUI =
+{
+  show: function(text)
+  {
+    //todo block the UI
+    return $blockElement;
+  }
+}
+</pre>
+
+We would call:
+
+<pre>$.stub($.blockUI, 'show', ['Processing, Please Wait'], $('<div>'));</pre>
+  
+h2. Failures
+
+If a match cannot be found for a method which is being stubbed, an error will be thrown. If "qunit":http://github.com/jquery/qunit is installed, a failed assertion with a error message will be displayed. If qunit is not installed, an exception will be raised.
+
+h2. Resetting
+
+All stubs can be reset by calling @$.resetStubs()@
+
+
+h2. Expectations
+
+jstub supports limited support for expectation checking. @$.stub@ returns an object which has an @invoked@ member which can be queried to count the number of times it was called:
+
+<pre>
+var stub = $.stub($.blockUI, 'show', ['please wait'], null);
+$.blockUI.show('please wait');
+$.blockUI.show('something else');
+$.blockUI.show('please wait');
+</pre>
+
+The @stub.invoked@ will be equal to 2

@@ -12,7 +12,7 @@ $.jstub =
       container = new $.jstub.container(object);
       $.jstub.containers[object] = container;
     }
-    container.add(method, arguments, returnValue);
+   	return container.add(method, arguments, returnValue);
   },
   reset: function()
   {
@@ -41,7 +41,7 @@ $.jstub.container = function(object)
         return stubber.execute(stubber, args);
       };
     }
-    stubber.add(arguments, returnValue);
+    return stubber.add(arguments, returnValue);
   };
   this.reset = function()
   {
@@ -61,15 +61,19 @@ $.jstub.stubber = function(object, method)
   this.expectations = [];
   this.add = function(arguments, returnValue)
   {
-    this.expectations.push({arguments: arguments, returnValue: returnValue});
+		var expectation = {arguments: arguments, returnValue: returnValue, invoked: 0};
+    this.expectations.push(expectation);
+		return expectation;
   };
   this.execute = function(stubber, args)
   {   
     for(var i = 0; i < stubber.expectations.length; ++i)
     {
-      if ($.jstub.compare(stubber.expectations[i].arguments, args))
+			var expectation = stubber.expectations[i];
+      if ($.jstub.compare(expectation.arguments, args))
       {
-        return stubber.expectations[i].returnValue;
+				expectation.invoked += 1;
+        return expectation.returnValue;
       }
     }
 		

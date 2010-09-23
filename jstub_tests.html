@@ -106,7 +106,21 @@ $(document).ready(function()
     ok(testObject.simplest() == false, "reset a single parameterless stub");
     ok(globalSimpler() == false, "reset a global parametered stub");
     ok(globalSimpler() == false, "reset a second global parametered stub");
-  })
+  });
+  
+  test("returned stub counts number of invocations", function()
+  {
+    var stub = $.stub(testObject, 'simpler', ['goku', 9000], true);
+    $.stub(testObject, 'simpler', ['vegeta', 8999], 'HAHA');
+    $.stub(window, 'globalSimpler', [1322, 3], true);
+    
+    testObject.simpler('goku', 9000);
+    testObject.simpler('vegeta', 8999);
+    testObject.simpler('goku', 9000);
+    globalSimpler(1322, 3);
+    
+    equals(stub.invoked, 2, "stub tracked number of invocations");
+  });
 
   
   var testObject = 
