@@ -143,6 +143,13 @@ $(document).ready(function()
      ok(globalSimpler('abc', null), "stubbed a double any with a value");
      ok(globalSimpler(null, null), "stubbed a double any with a double null");
    });
+   
+   test("matches all parameters if allAny", function()
+   {
+     $.stub(window, 'globalSimpler', $.jstub.allAny, true);
+     ok(globalSimpler('abc', null), "stubbed a double any with a value");
+     ok(globalSimpler(null, null), "stubbed a double any with a double null");
+   });
   
   test("executes a callback function with parameters", function()
   {

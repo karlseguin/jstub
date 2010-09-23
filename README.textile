@@ -52,6 +52,15 @@ someFunction(1, 213, 'somethingElse); //will return 'was stubbed!'
 someFunction(1, new Object(), 'somethingElse); //will return 'was stubbed!'
 </pre>
 
+Furthermore, you can match any parameters by specifying @$.jstub.anyAll@:
+
+<pre>
+$.stub(window, 'someFunction', $.jstub.anyAll, 'was stubbed!');
+someFunction(1, null, null); //will return 'was stubbed!'
+someFunction(null, null, null); //will return 'was stubbed!'
+someFunction({}, {}, {}); //will return 'was stubbed!'
+</pre>
+
 h3. single parameter
 
 In the case where your method expects a single parameter (be it a simple value, or a more complex one), you do not have to pass the expected parameters in as an array:
