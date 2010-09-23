@@ -62,6 +62,7 @@ $.jstub.stubber = function(object, method)
   this.expectations = [];
   this.add = function(arguments, returnValue)
   {
+		if (typeof arguments != 'Array') { arguments = [arguments]; }
 		var expectation = {arguments: arguments, returnValue: returnValue, invoked: 0};
     this.expectations.push(expectation);
 		return expectation;
@@ -98,37 +99,37 @@ $.jstub.stubber = function(object, method)
 //http://www.yoxigen.com/blog/index.php/2010/04/javascript-function-to-deep-compare-json-objects/
 $.jstub.compare = function(expected, actual)
 {
- function size(o)
- {
-  var size = 0;
-  for (var keyName in o)
-  {
-    if (keyName != null) { size++; }
-  }
-  return size;
- }
+	function size(o)
+ 	{
+  	var size = 0;
+  	for (var keyName in o)
+  	{
+    	if (keyName != null) { size++; }
+  	}
+  	return size;
+ 	}
 
- if (size(expected) != size(actual)) { return false; }
+ 	if (size(expected) != size(actual)) { return false; }
 
- for(var keyName in expected)
- {
-  var value1 = expected[keyName];
-	var value2 = actual[keyName];
+ 	for(var keyName in expected)
+ 	{
+  	var value1 = expected[keyName];
+		var value2 = actual[keyName];
 
-	if (value1 == $.jstub.any) { continue; }
-	if (typeof value1 != typeof value2) { return false; }
-	// For jQuery objects:
-	if (value1 && value1.length && (value1[0] !== undefined && value1[0].tagName))
-	{
-		if(!value2 || value2.length != value1.length || !value2[0].tagName || value2[0].tagName != value1[0].tagName) { return false; }
-	}
-	else if (typeof value1 == 'function' || typeof value1 == 'object') 
-	{
-	  if (!compare(value1, value2)) { return false; }
-	}
-	else if (value1 != value2) {return false; }
- }
- return true;
+		if (value1 == $.jstub.any) { continue; }
+		if (typeof value1 != typeof value2) { return false; }
+		// For jQuery objects:
+		if (value1 && value1.length && (value1[0] !== undefined && value1[0].tagName))
+		{
+			if(!value2 || value2.length != value1.length || !value2[0].tagName || value2[0].tagName != value1[0].tagName) { return false; }
+		}
+		else if (typeof value1 == 'function' || typeof value1 == 'object') 
+		{
+	  	if (!$.jstub.compare(value1, value2)) { return false; }
+		}
+		else if (value1 != value2) {return false; }
+ 	}
+ 	return true;
 };
 
 $.stub = $.jstub.stub;

@@ -52,6 +52,14 @@ someFunction(1, 213, 'somethingElse); //will return 'was stubbed!'
 someFunction(1, new Object(), 'somethingElse); //will return 'was stubbed!'
 </pre>
 
+h3. single parameter
+
+In the case where your method expects a single parameter (be it a simple value, or a more complex one), you do not have to pass the expected parameters in as an array:
+
+<pre>
+$.stub($, 'post', {url: '/some/url', ...}, 'was stubbed!');
+</pre>
+
 h2. failures
 
 If a match cannot be found for a method which is being stubbed, an error will be thrown. If "qunit":http://github.com/jquery/qunit is installed, a failed assertion with a error message will be displayed. If qunit is not installed, an exception will be raised.
