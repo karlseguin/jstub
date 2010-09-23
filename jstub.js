@@ -5,7 +5,7 @@ $.jstub =
   containers: {},
 	any: '__jstub__any',  //wow this sucks!
 	anyAll: '__jstub__anyAll', //ditto
-  stub: function(object, method, arguments, returnValue, callbackIndex)
+  stub: function(object, method, arguments, returnValue, callbackIndex, callbackName)
   {
     if (object == null) { object = window; }      
     var container = $.jstub.containers[object];
@@ -14,7 +14,7 @@ $.jstub =
       container = new $.jstub.container(object);
       $.jstub.containers[object] = container;
     }
-   	return container.add(method, arguments, returnValue, callbackIndex);
+   	return container.add(method, arguments, returnValue, callbackIndex, callbackName);
   },
   reset: function()
   {
@@ -30,7 +30,7 @@ $.jstub.container = function(object)
 {
   this.object = object;
   this.stubbers = {};
-  this.add = function(method, arguments, returnValue, callbackIndex)
+  this.add = function(method, arguments, returnValue, callbackIndex, callbackName)
   {
     var stubber = this.stubbers[method];
     if (stubber == null)
@@ -43,7 +43,7 @@ $.jstub.container = function(object)
         return stubber.execute(stubber, args);
       };
     }
-    return stubber.add(arguments, returnValue, callbackIndex);
+    return stubber.add(arguments, returnValue, callbackIndex, callbackName);
   };
   this.reset = function()
   {
@@ -61,11 +61,18 @@ $.jstub.stubber = function(object, method)
   this.method = method;
   this.original = object[method];
   this.expectations = [];
-  this.add = function(arguments, returnValue, callbackIndex)
+  this.add = function(arguments, returnValue, callbackIndex, callbackName)
   {
 		if(arguments == null) { arguments = []; }
 		if (typeof arguments == 'string' || typeof arguments.length == 'undefined'	) { arguments = [arguments]; }
-		var expectation = {arguments: arguments, returnValue: returnValue, callbackIndex: callbackIndex, invoked: 0};
+		var expectation = 
+		{
+			arguments: arguments, 
+			returnValue: returnValue, 
+			callbackIndex: callbackIndex, 
+			callbackName: callbackName,
+			invoked: 0
+		};
     this.expectations.push(expectation);
 		return expectation;
   };
@@ -77,12 +84,21 @@ $.jstub.stubber = function(object, method)
       if ($.jstub.compare(expectation.arguments, args))
       {
 				expectation.invoked += 1;
-				if (expectation.callbackIndex)
+				if (expectation.callbackIndex != null)
 				{
 					var parameters = expectation.returnValue;
 					if (parameters == null) { parameters = []; }
 					if (typeof parameters == 'string' || typeof parameters.length == 'undefined' ) { parameters = [parameters]; }
-					args[expectation.callbackIndex].apply(window, parameters);
+					
+					var arg = args[expectation.callbackIndex];
+					if (expectation.callbackName != null)
+					{
+						arg[expectation.callbackName].apply(window, parameters);
+					}
+					else
+					{
+						arg.apply(window, parameters);
+					}
 					return true;
 				}
 				else

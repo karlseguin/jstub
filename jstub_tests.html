@@ -154,15 +154,13 @@ $(document).ready(function()
   test("executes a callback function with parameters", function()
   {
     $.stub($, 'post', ['url/delete', {id: 1}, $.jstub.any, 'json'], ['deleted', 'ok'], 2);
-    var called = false;
     
     $.post('url/delete', {id: 1}, function(response, status){
       equals(response, 'deleted', 'got the first parameter');
       equals(status, 'ok', 'got the second parameter');
-      called = true;
     }, 'json');
     
-    ok(called, "callback was called");
+    expect(2);
   });
 
   test("executes a callback function with a single parameter", function()
@@ -172,11 +170,35 @@ $(document).ready(function()
     
     $.post('url/delete', {id: 1}, function(response){
       equals(response.powerLevel, 'over9000!!!', 'got the response');
-      called = true;
     }, 'json');
     
-    ok(called, "callback was called");
+    expect(1);
   });
+  
+  test("executes a callback function with no parameters", function()
+  {
+    $.stub($, 'post', ['url/delete', {id: 1}, $.jstub.any, 'json'], null, 2);
+    
+    $.post('url/delete', {id: 1}, function(){
+      ok(true, "callback was called");
+    }, 'json');
+    
+    expect(1);
+  });
+
+  test("executes a named callback from an object literal", function()
+  {
+    $.stub($, 'ajax', {url: '/url', data:{id: 1}, success: $.jstub.any}, ['response', 'status'], 0, 'success');
+    
+    $.ajax({url: '/url', data:{id: 1}, success: function(r, s)
+    {
+      equals(r, 'response', 'got the first parameter');
+      equals(s, 'status', 'got the second parameter');
+    }});
+    
+    expect(2);
+  });
+  
 });
 var testObject = 
 {
