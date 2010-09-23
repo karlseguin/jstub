@@ -77,7 +77,9 @@ $.jstub.stubber = function(object, method)
 				expectation.invoked += 1;
 				if (expectation.callbackIndex)
 				{
-					args[expectation.callbackIndex].apply(window, expectation.returnValue);
+					var parameters = expectation.returnValue;
+					if (typeof parameters == 'string' || typeof parameters.length == 'undefined' ) { parameters = [parameters]; }
+					args[expectation.callbackIndex].apply(window, parameters);
 					return true;
 				}
 				else
