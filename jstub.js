@@ -4,7 +4,7 @@ $.jstub =
 {
   containers: {},
 	any: '__jstub__any',  //wow this sucks!
-	allAny: '__jstub__allAny', //ditto
+	anyAll: '__jstub__anyAll', //ditto
   stub: function(object, method, arguments, returnValue, callbackIndex)
   {
     if (object == null) { object = window; }      
@@ -121,7 +121,7 @@ $.jstub.compare = function(expected, actual)
   	return size;
  	}
 
-	if (expected[0] == $.jstub.allAny) { return true; }
+	if (expected[0] == $.jstub.anyAll) { return true; }
  	if (size(expected) != size(actual)) { return false; }
 
  	for(var keyName in expected)
