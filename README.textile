@@ -22,7 +22,7 @@ We would call:
 
 Any subsequent calls to @getNewNotifications(1);@ would return 10.
 
-h3. Non 'window' methods
+h3. non 'window' methods
 
 Stubbing a method that does not exist globally is equally as easy. Given:
 
@@ -40,17 +40,28 @@ $.blockUI =
 We would call:
 
 <pre>$.stub($.blockUI, 'show', ['Processing, Please Wait'], $('<div>'));</pre>
-  
-h2. Failures
+
+h3. any matcher
+
+Passing a parameter of @$.jstub.any@ will create a wildcard match for a parameter:
+
+<pre>
+$.stub(window, 'someFunction', [1, $.jstub.any, 'somethingElse'], 'was stubbed!');
+someFunction(1, null, 'somethingElse); //will return 'was stubbed!'
+someFunction(1, 213, 'somethingElse); //will return 'was stubbed!'
+someFunction(1, new Object(), 'somethingElse); //will return 'was stubbed!'
+</pre>
+
+h2. failures
 
 If a match cannot be found for a method which is being stubbed, an error will be thrown. If "qunit":http://github.com/jquery/qunit is installed, a failed assertion with a error message will be displayed. If qunit is not installed, an exception will be raised.
 
-h2. Resetting
+h2. resetting
 
 All stubs can be reset by calling @$.resetStubs()@
 
 
-h2. Expectations
+h2. expectations
 
 jstub supports limited support for expectation checking. @$.stub@ returns an object which has an @invoked@ member which can be queried to count the number of times it was called:
 

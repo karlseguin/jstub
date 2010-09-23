@@ -3,6 +3,7 @@ if (typeof $ == 'undefined') { $ = {}; }
 $.jstub =
 {
   containers: {},
+	any: '__jstub__any',  //wow this sucks!
   stub: function(object, method, arguments, returnValue)
   {
     if (object == null) { object = window; }      
@@ -21,7 +22,7 @@ $.jstub =
       $.jstub.containers[container].reset();
     }
     $.jstub.containers = {};
-  }
+  },
 };
 
 $.jstub.container = function(object)
@@ -95,7 +96,7 @@ $.jstub.stubber = function(object, method)
 
 //largely taken from:
 //http://www.yoxigen.com/blog/index.php/2010/04/javascript-function-to-deep-compare-json-objects/
-$.jstub.compare = function(first, second)
+$.jstub.compare = function(expected, actual)
 {
  function size(o)
  {
@@ -107,13 +108,14 @@ $.jstub.compare = function(first, second)
   return size;
  }
 
- if (size(first) != size(second)) { return false; }
+ if (size(expected) != size(actual)) { return false; }
 
- for(var keyName in first)
+ for(var keyName in expected)
  {
-  var value1 = first[keyName];
-	var value2 = second[keyName];
+  var value1 = expected[keyName];
+	var value2 = actual[keyName];
 
+	if (value1 == $.jstub.any) { continue; }
 	if (typeof value1 != typeof value2) { return false; }
 	// For jQuery objects:
 	if (value1 && value1.length && (value1[0] !== undefined && value1[0].tagName))

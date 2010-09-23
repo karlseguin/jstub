@@ -121,6 +121,17 @@ $(document).ready(function()
     
     equals(stub.invoked, 2, "stub tracked number of invocations");
   });
+  
+  test("matches a parameter stubbed as any", function()
+  {
+    $.stub(testObject, 'simpler', ['vegeta', $.jstub.any], true);
+    $.stub(window, 'globalSimpler', [$.jstub.any, $.jstub.any], true);
+    
+    ok(testObject.simpler('vegeta', "123"), "stubbed a single any with a value");
+    ok(testObject.simpler('vegeta', null), "stubbed a single any with a null");
+    ok(globalSimpler('abc', null), "stubbed a double any with a value");
+    ok(globalSimpler(null, null), "stubbed a double any with a double null");
+  })
 
   
   var testObject = 
