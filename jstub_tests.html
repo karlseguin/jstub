@@ -47,8 +47,11 @@ $(document).ready(function()
           $.stub(window, 'globalSimpler', ['super sayan 3', 5], true);
           ok(globalSimpler('super sayan 3', 5) === true, "stubbed a simple global method with parameters");
        
-       $.stub(testObject, 'single', {id: 123, name: 'abc'}, true);
-       ok(testObject.single({id: 123, name: 'abc'}) === true, "stubbed a single parameter");
+          $.stub(testObject, 'single', {id: 123, name: 'abc'}, true);
+          ok(testObject.single({id: 123, name: 'abc'}) === true, "stubbed a single parameter");
+          
+          $.stub(testObject, 'single', 'string', true);
+          ok(testObject.single('string') === true, "stubbed a single string parameter");
      });
      
      //not sure I like this feature
