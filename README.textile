@@ -60,6 +60,32 @@ In the case where your method expects a single parameter (be it a simple value, 
 $.stub($, 'post', {url: '/some/url', ...}, 'was stubbed!');
 </pre>
 
+h3. callbacks
+
+Rather than having a stub return a value, you can make it invoke a callback from the original list of arguments. To do say the @returnValue@ argument turns into the parameters to pass into the callback, and a new argument is added to specify the callback argument index. Think of the @$.post@ and @$.get@ jquery ajax method:
+
+<pre>
+function doDelete(id)
+{
+  $.post('/url/delete', {id: id}, function(response, status)
+    {
+      $('tr[rel=' + response.deletedId + ']').remove();
+    }, 'json');
+}
+<pre>
+
+In order to accurately stub our code we want to stub @$.post@ yet make sure the callback is properly executed:
+
+<pre>
+$.stub($, 'post', ['/url/delete', {id: 1}, $.jstub.any, 'json'], [1, 'ok'], 2);
+doDelete(1);
+
+ok($('tr[rel=1]').length == 0, "row was deleted");
+</pre>
+
+In the above example the @returnValue@ (the 4th argument to @$.stub@) will be passed to our callback. And the
+callback that'll be executed is the 2 (0-based) parameter of the original (unstubbed) call.
+
 h2. failures
 
 If a match cannot be found for a method which is being stubbed, an error will be thrown. If "qunit":http://github.com/jquery/qunit is installed, a failed assertion with a error message will be displayed. If qunit is not installed, an exception will be raised.

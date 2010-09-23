@@ -4,7 +4,7 @@ $.jstub =
 {
   containers: {},
 	any: '__jstub__any',  //wow this sucks!
-  stub: function(object, method, arguments, returnValue)
+  stub: function(object, method, arguments, returnValue, callbackIndex)
   {
     if (object == null) { object = window; }      
     var container = $.jstub.containers[object];
@@ -13,7 +13,7 @@ $.jstub =
       container = new $.jstub.container(object);
       $.jstub.containers[object] = container;
     }
-   	return container.add(method, arguments, returnValue);
+   	return container.add(method, arguments, returnValue, callbackIndex);
   },
   reset: function()
   {
@@ -29,7 +29,7 @@ $.jstub.container = function(object)
 {
   this.object = object;
   this.stubbers = {};
-  this.add = function(method, arguments, returnValue)
+  this.add = function(method, arguments, returnValue, callbackIndex)
   {
     var stubber = this.stubbers[method];
     if (stubber == null)
@@ -42,7 +42,7 @@ $.jstub.container = function(object)
         return stubber.execute(stubber, args);
       };
     }
-    return stubber.add(arguments, returnValue);
+    return stubber.add(arguments, returnValue, callbackIndex);
   };
   this.reset = function()
   {
@@ -60,10 +60,10 @@ $.jstub.stubber = function(object, method)
   this.method = method;
   this.original = object[method];
   this.expectations = [];
-  this.add = function(arguments, returnValue)
+  this.add = function(arguments, returnValue, callbackIndex)
   {
-		if (typeof arguments != 'Array') { arguments = [arguments]; }
-		var expectation = {arguments: arguments, returnValue: returnValue, invoked: 0};
+		if (typeof arguments.length == 'undefined'	) { arguments = [arguments]; }
+		var expectation = {arguments: arguments, returnValue: returnValue, callbackIndex: callbackIndex, invoked: 0};
     this.expectations.push(expectation);
 		return expectation;
   };
@@ -75,10 +75,17 @@ $.jstub.stubber = function(object, method)
       if ($.jstub.compare(expectation.arguments, args))
       {
 				expectation.invoked += 1;
-        return expectation.returnValue;
+				if (expectation.callbackIndex)
+				{
+					args[expectation.callbackIndex].apply(window, expectation.returnValue);
+					return true;
+				}
+				else
+				{
+        	return expectation.returnValue;
+				}
       }
     }
-		
 		//unexpected call, let's build a message		
 		var message = 'unexpected call to ' + method + "(";
 		for(var i = 0; i < args.length; ++i)

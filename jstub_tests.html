@@ -30,112 +30,124 @@ $(document).ready(function()
   };
   
   test("it stubs simple methods", function()
+     {
+       $.stub(testObject, 'simplest', [], true);
+          ok(testObject.simplest() === true, "stubbed a simple method without parameter");
+          
+          $.stub(testObject, 'simpler', ['goku', 9001], true);
+          ok(testObject.simpler('goku', 9001) === true, "stubbed a simple method with parameters");
+        
+          $.stub(testObject, 'simpler', ['vegeta', 2002], true);
+          ok(testObject.simpler('vegeta', 2002) === true, "stubbed a second simple method with parameters");
+          ok(testObject.simpler('vegeta', 2002) === true, "stubbed a second simple method with parameters repeatedly");
+                
+          $.stub(window, 'globalSimplest', [], true);
+          ok(globalSimplest() === true, "stubbed a simple global method without parameter");
+          
+          $.stub(window, 'globalSimpler', ['super sayan 3', 5], true);
+          ok(globalSimpler('super sayan 3', 5) === true, "stubbed a simple global method with parameters");
+       
+       $.stub(testObject, 'single', {id: 123, name: 'abc'}, true);
+       ok(testObject.single({id: 123, name: 'abc'}) === true, "stubbed a single parameter");
+     });
+     
+     //not sure I like this feature
+     test("the window is the default object", function()
+     {
+       $.stub(null, 'globalSimplest', [], true);
+       ok(globalSimplest() === true, "auto stubbed a simple global method without parameter");
+       
+       $.stub(null, 'globalSimpler', ['super sayan 4', 2], true);
+       ok(globalSimpler('super sayan 4', 2) === true, "auto stubbed a simple global method with parameters");
+     });
+     
+     test("unmatched call should fail", function()
+     {
+       $.stub(window, 'ok', [false, 'unexpected call to simplest()']);
+       $.stub(testObject, 'simplest', ["its over what?"], 'successfully failed');
+       testObject.simplest();
+       //no need to assert, if we don't see an error, it means that our stubbed ok worked
+     
+       $.stub(window, 'ok', [false, 'unexpected call to simplest(8000)']);
+       testObject.simplest(8000);
+       
+       $.stub(window, 'ok', [false, 'unexpected call to simplest("its over", 9000)']);
+       testObject.simplest("its over", 9000);
+     });
+     
+     test("unmatched call should fail with exception when ok function isn't available", function()
+     {
+       ok = null;
+       $.stub(testObject, 'simplest', ["its over what?!"], 'successfully failed');
+       
+       assertException(function(){testObject.simplest();}, "unexpected call to simplest()", "unexpected parameterless call");
+       assertException(function(){testObject.simplest(8000);}, "unexpected call to simplest(8000)", "unexpected parameter call");
+       assertException(function(){testObject.simplest("its over", 9000);}, "unexpected call to simplest(\"its over\", 9000)", "unexpected multi-parameter call");
+     });
+    
+     function assertException(cause, message, assertionMessage)
+     {
+       try 
+       { 
+         cause();
+         originalOK(false, "didn't get an exception for an " + assertionMessage); 
+       }
+       catch(err) 
+       { 
+         equals(err, message, "threw exception for an " + assertionMessage);
+       }
+     }
+    
+     test("resets all stubs to their original implementation", function()
+     {
+       $.stub(testObject, 'simplest', [], true);
+       $.stub(window, 'globalSimpler', [9000, 3], true);
+       $.stub(window, 'globalSimpler', [2000, 1], true);
+       
+       $.resetStubs();
+       
+       ok(testObject.simplest() == false, "reset a single parameterless stub");
+       ok(globalSimpler() == false, "reset a global parametered stub");
+       ok(globalSimpler() == false, "reset a second global parametered stub");
+     });
+     
+     test("returned stub counts number of invocations", function()
+     {
+       var stub = $.stub(testObject, 'simpler', ['goku', 9000], true);
+       $.stub(testObject, 'simpler', ['vegeta', 8999], 'HAHA');
+       $.stub(window, 'globalSimpler', [1322, 3], true);
+       
+       testObject.simpler('goku', 9000);
+       testObject.simpler('vegeta', 8999);
+       testObject.simpler('goku', 9000);
+       globalSimpler(1322, 3);
+       
+       equals(stub.invoked, 2, "stub tracked number of invocations");
+     });
+     
+     test("matches a parameter stubbed as any", function()
+     {
+       $.stub(testObject, 'simpler', ['vegeta', $.jstub.any], true);
+       $.stub(window, 'globalSimpler', [$.jstub.any, $.jstub.any], true);
+       
+       ok(testObject.simpler('vegeta', "123"), "stubbed a single any with a value");
+       ok(testObject.simpler('vegeta', null), "stubbed a single any with a null");
+       ok(globalSimpler('abc', null), "stubbed a double any with a value");
+       ok(globalSimpler(null, null), "stubbed a double any with a double null");
+     });
+    
+  test("executes a callback function with parameters", function()
   {
-    // $.stub(testObject, 'simplest', [], true);
-    //    ok(testObject.simplest() === true, "stubbed a simple method without parameter");
-    //    
-    //    $.stub(testObject, 'simpler', ['goku', 9001], true);
-    //    ok(testObject.simpler('goku', 9001) === true, "stubbed a simple method with parameters");
-    //  
-    //    $.stub(testObject, 'simpler', ['vegeta', 2002], true);
-    //    ok(testObject.simpler('vegeta', 2002) === true, "stubbed a second simple method with parameters");
-    //    ok(testObject.simpler('vegeta', 2002) === true, "stubbed a second simple method with parameters repeatedly");
-    //          
-    //    $.stub(window, 'globalSimplest', [], true);
-    //    ok(globalSimplest() === true, "stubbed a simple global method without parameter");
-    //    
-    //    $.stub(window, 'globalSimpler', ['super sayan 3', 5], true);
-    //    ok(globalSimpler('super sayan 3', 5) === true, "stubbed a simple global method with parameters");
+    $.stub($, 'post', ['url/delete', {id: 1}, $.jstub.any, 'json'], ['deleted', 'ok'], 2);
+    var called = false;
     
-    $.stub(testObject, 'single', {id: 123, name: 'abc'}, true);
-    ok(testObject.single({id: 123, name: 'abc'}) === true, "stubbed a single parameter");
-  });
-  
-  return;
-  
-  //not sure I like this feature
-  test("the window is the default object", function()
-  {
-    $.stub(null, 'globalSimplest', [], true);
-    ok(globalSimplest() === true, "auto stubbed a simple global method without parameter");
+    $.post('url/delete', {id: 1}, function(response, status){
+      equals(response, 'deleted', 'got the first parameter');
+      equals(status, 'ok', 'got the second parameter');
+      called = true;
+    }, 'json');
     
-    $.stub(null, 'globalSimpler', ['super sayan 4', 2], true);
-    ok(globalSimpler('super sayan 4', 2) === true, "auto stubbed a simple global method with parameters");
-  });
-  
-  test("unmatched call should fail", function()
-  {
-    $.stub(window, 'ok', [false, 'unexpected call to simplest()']);
-    $.stub(testObject, 'simplest', ["its over what?"], 'successfully failed');
-    testObject.simplest();
-    //no need to assert, if we don't see an error, it means that our stubbed ok worked
-  
-    $.stub(window, 'ok', [false, 'unexpected call to simplest(8000)']);
-    testObject.simplest(8000);
-    
-    $.stub(window, 'ok', [false, 'unexpected call to simplest("its over", 9000)']);
-    testObject.simplest("its over", 9000);
-  });
-  
-  test("unmatched call should fail with exception when ok function isn't available", function()
-  {
-    ok = null;
-    $.stub(testObject, 'simplest', ["its over what?!"], 'successfully failed');
-    
-    assertException(function(){testObject.simplest();}, "unexpected call to simplest()", "unexpected parameterless call");
-    assertException(function(){testObject.simplest(8000);}, "unexpected call to simplest(8000)", "unexpected parameter call");
-    assertException(function(){testObject.simplest("its over", 9000);}, "unexpected call to simplest(\"its over\", 9000)", "unexpected multi-parameter call");
-  });
-
-  function assertException(cause, message, assertionMessage)
-  {
-    try 
-    { 
-      cause();
-      originalOK(false, "didn't get an exception for an " + assertionMessage); 
-    }
-    catch(err) 
-    { 
-      equals(err, message, "threw exception for an " + assertionMessage);
-    }
-  }
-
-  test("resets all stubs to their original implementation", function()
-  {
-    $.stub(testObject, 'simplest', [], true);
-    $.stub(window, 'globalSimpler', [9000, 3], true);
-    $.stub(window, 'globalSimpler', [2000, 1], true);
-    
-    $.resetStubs();
-    
-    ok(testObject.simplest() == false, "reset a single parameterless stub");
-    ok(globalSimpler() == false, "reset a global parametered stub");
-    ok(globalSimpler() == false, "reset a second global parametered stub");
-  });
-  
-  test("returned stub counts number of invocations", function()
-  {
-    var stub = $.stub(testObject, 'simpler', ['goku', 9000], true);
-    $.stub(testObject, 'simpler', ['vegeta', 8999], 'HAHA');
-    $.stub(window, 'globalSimpler', [1322, 3], true);
-    
-    testObject.simpler('goku', 9000);
-    testObject.simpler('vegeta', 8999);
-    testObject.simpler('goku', 9000);
-    globalSimpler(1322, 3);
-    
-    equals(stub.invoked, 2, "stub tracked number of invocations");
-  });
-  
-  test("matches a parameter stubbed as any", function()
-  {
-    $.stub(testObject, 'simpler', ['vegeta', $.jstub.any], true);
-    $.stub(window, 'globalSimpler', [$.jstub.any, $.jstub.any], true);
-    
-    ok(testObject.simpler('vegeta', "123"), "stubbed a single any with a value");
-    ok(testObject.simpler('vegeta', null), "stubbed a single any with a null");
-    ok(globalSimpler('abc', null), "stubbed a double any with a value");
-    ok(globalSimpler(null, null), "stubbed a double any with a double null");
+    ok(called, "callback was called");
   })
 });
 var testObject = 
@@ -143,6 +155,7 @@ var testObject =
   simplest: function() { return false; },
   single: function(parameter) { return false; },
   simpler: function(name, powerLevel) { return false; }
+  
 };
 function globalSimplest()  { return false; }
 function globalSimpler(level, ballCount)  { return false; }
