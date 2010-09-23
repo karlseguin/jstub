@@ -81,7 +81,7 @@ function doDelete(id)
       $('tr[rel=' + response.deletedId + ']').remove();
     }, 'json');
 }
-<pre>
+</pre>
 
 In order to accurately stub our code we want to stub @$.post@ yet make sure the callback is properly executed:
 
