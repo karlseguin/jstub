@@ -23,7 +23,7 @@ $.jstub =
       $.jstub.containers[container].reset();
     }
     $.jstub.containers = {};
-  },
+  }
 };
 
 $.jstub.container = function(object)

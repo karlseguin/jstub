@@ -126,3 +126,8 @@ $.blockUI.show('please wait');
 </pre>
 
 The @stub.invoked@ will be equal to 2
+
+h2. compatibility
+
+jstub has been tested on IE 6, firefox 3.6 and Chrome 6.
+
