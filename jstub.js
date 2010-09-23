@@ -62,6 +62,7 @@ $.jstub.stubber = function(object, method)
   this.expectations = [];
   this.add = function(arguments, returnValue, callbackIndex)
   {
+		if(arguments == null) { arguments = []; }
 		if (typeof arguments == 'string' || typeof arguments.length == 'undefined'	) { arguments = [arguments]; }
 		var expectation = {arguments: arguments, returnValue: returnValue, callbackIndex: callbackIndex, invoked: 0};
     this.expectations.push(expectation);
@@ -78,6 +79,7 @@ $.jstub.stubber = function(object, method)
 				if (expectation.callbackIndex)
 				{
 					var parameters = expectation.returnValue;
+					if (parameters == null) { parameters = []; }
 					if (typeof parameters == 'string' || typeof parameters.length == 'undefined' ) { parameters = [parameters]; }
 					args[expectation.callbackIndex].apply(window, parameters);
 					return true;

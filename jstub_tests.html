@@ -30,28 +30,33 @@ $(document).ready(function()
   };
   
   test("it stubs simple methods", function()
-   {
-     $.stub(testObject, 'simplest', [], true);
-        ok(testObject.simplest() === true, "stubbed a simple method without parameter");
-        
-        $.stub(testObject, 'simpler', ['goku', 9001], true);
-        ok(testObject.simpler('goku', 9001) === true, "stubbed a simple method with parameters");
+  {
+    $.stub(testObject, 'simplest', [], true);
+    ok(testObject.simplest() === true, "stubbed a simple method with empty parameters");
+    
+    $.resetStubs();
+    var stub = $.stub(testObject, 'simplest');
+    testObject.simplest();
+    ok(stub.invoked == 1, "stubbed a simple method with no parameters");
+
+    $.stub(testObject, 'simpler', ['goku', 9001], true);
+    ok(testObject.simpler('goku', 9001) === true, "stubbed a simple method with parameters");
+
+    $.stub(testObject, 'simpler', ['vegeta', 2002], true);
+    ok(testObject.simpler('vegeta', 2002) === true, "stubbed a second simple method with parameters");
+    ok(testObject.simpler('vegeta', 2002) === true, "stubbed a second simple method with parameters repeatedly");
       
-        $.stub(testObject, 'simpler', ['vegeta', 2002], true);
-        ok(testObject.simpler('vegeta', 2002) === true, "stubbed a second simple method with parameters");
-        ok(testObject.simpler('vegeta', 2002) === true, "stubbed a second simple method with parameters repeatedly");
-              
-        $.stub(window, 'globalSimplest', [], true);
-        ok(globalSimplest() === true, "stubbed a simple global method without parameter");
-        
-        $.stub(window, 'globalSimpler', ['super sayan 3', 5], true);
-        ok(globalSimpler('super sayan 3', 5) === true, "stubbed a simple global method with parameters");
-     
-        $.stub(testObject, 'single', {id: 123, name: 'abc'}, true);
-        ok(testObject.single({id: 123, name: 'abc'}) === true, "stubbed a single parameter");
-        
-        $.stub(testObject, 'single', 'string', true);
-        ok(testObject.single('string') === true, "stubbed a single string parameter");
+    $.stub(window, 'globalSimplest', [], true);
+    ok(globalSimplest() === true, "stubbed a simple global method without parameter");
+
+    $.stub(window, 'globalSimpler', ['super sayan 3', 5], true);
+    ok(globalSimpler('super sayan 3', 5) === true, "stubbed a simple global method with parameters");
+
+    $.stub(testObject, 'single', {id: 123, name: 'abc'}, true);
+    ok(testObject.single({id: 123, name: 'abc'}) === true, "stubbed a single parameter");
+
+    $.stub(testObject, 'single', 'string', true);
+    ok(testObject.single('string') === true, "stubbed a single string parameter");
    });
    
    //not sure I like this feature
