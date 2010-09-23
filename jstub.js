@@ -3,8 +3,8 @@ if (typeof $ == 'undefined') { $ = {}; }
 $.jstub =
 {
   containers: {},
-	any: '__jstub__any',  //wow this sucks!
-	anyAll: '__jstub__anyAll', //ditto
+	any: {},  //sucks less than my first attempt at this
+	anyAll: {}, //ditto
   stub: function(object, method, arguments, returnValue, callbackIndex, callbackName)
   {
     if (object == null) { object = window; }      
