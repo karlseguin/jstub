@@ -144,9 +144,9 @@ $(document).ready(function()
      ok(globalSimpler(null, null), "stubbed a double any with a double null");
    });
    
-   test("matches all parameters if allAny", function()
+   test("matches all parameters if anyAll", function()
    {
-     $.stub(window, 'globalSimpler', $.jstub.allAny, true);
+     $.stub(window, 'globalSimpler', $.jstub.anyAll, true);
      ok(globalSimpler('abc', null), "stubbed a double any with a value");
      ok(globalSimpler(null, null), "stubbed a double any with a double null");
    });
