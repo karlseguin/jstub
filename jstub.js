@@ -1,29 +1,36 @@
 if (typeof $ == 'undefined') { $ = {}; }
 
-$.jstub =
-{
-  containers: {},
-	any: {},  //sucks less than my first attempt at this
-	anyAll: {}, //ditto
-  stub: function(object, method, arguments, returnValue, callbackIndex, callbackName)
-  {
-    if (object == null) { object = window; }      
-    var container = $.jstub.containers[object];
+$.jstub = 
+{ 
+  containers: [], 
+  any: {},  //sucks less than my first attempt at this 
+  anyAll: {}, //ditto 
+  stub: function(object, method, arguments, returnValue, callbackIndex, callbackName) 
+  {  
+    if (object == null) { object = window; } 
+    var container = null; 
+    for(var i = 0; i < $.jstub.containers.length; ++i) 
+    { 
+      if ($.jstub.containers[i].object == object) 
+      { 
+         container = $.jstub.containers[i]; break; 
+      } 
+    } 
     if (container == null) 
     { 
-      container = new $.jstub.container(object);
-      $.jstub.containers[object] = container;
-    }
-   	return container.add(method, arguments, returnValue, callbackIndex, callbackName);
-  },
-  reset: function()
-  {
-    for(var container in $.jstub.containers)
-    {
-      $.jstub.containers[container].reset();
-    }
-    $.jstub.containers = {};
-  }
+      container = new $.jstub.container(object); 
+      $.jstub.containers.push(container); 
+    }    
+    return container.add(method, arguments, returnValue, callbackIndex, callbackName); 
+  }, 
+  reset: function() 
+  { 
+    for(var i = 0; i < $.jstub.containers.length; ++i) 
+    { 
+      $.jstub.containers[i].reset(); 
+    } 
+    $.jstub.containers = []; 
+  } 
 };
 
 $.jstub.container = function(object)
